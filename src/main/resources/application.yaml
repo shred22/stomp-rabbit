@@ -1,0 +1,44 @@
+spring:
+  main:
+    banner-mode: off
+
+logging:
+  level:
+    org.springframework.messaging.simp: DEBUG
+    org.springframework.security: DEBUG
+
+app:
+  jwt:
+    issuer: stomp-rabbit-spring-server
+    secretKey: securesecuresecuresecuresecuresecuresecuresecuresecuresecuresecure
+    tokenPrefix: Bearer
+    tokenExpirationAfterDays: 10
+  stomp:
+    endpoint: /stomp-ws
+    allowedOrigins: '*'
+    userDestinationPrefix: /client
+    appDestinationPrefix: /v1
+    destinationToken: '-'
+    destinationType: queue
+    tls:
+      version: TLSv1.2
+      client:
+        keyPassword: bunnies
+        key-store-type: PKCS12
+        keyLocation: /home/dell/shreyas/Programming/BitBucketRepositories/stomp-rabbit/src/main/resources/ssl/Server/tls-gen/client_key.p12
+      server:
+        trustPassword: prvt1Key
+        trust-store-type: JKS
+        cert-file: /home/dell/shreyas/Programming/BitBucketRepositories/stomp-rabbit/src/main/resources/ssl/Server/tls-gen/rabbit_truststore.p12
+        trust-manager-type: SunX509
+    client:
+      login: shred22
+      password: password
+    broker:
+      host: localhost
+      port: 61614
+      login: shred22
+      password: password
+      relay: /queue
+    outbound:
+      thread-pool-size: 5

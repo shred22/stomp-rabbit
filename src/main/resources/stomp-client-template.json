@@ -1,0 +1,21 @@
+{
+  "template": {
+    "connect": {
+      "url": "ws://localhost:8080/stomp-ws",
+      "headers": {
+        "X-authorization": "eyJraWQiOiIxMjM0NSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJzdG9tcC1jbGllbnQtbmciLCJhdWQiOiJzdG9tcC1jbGllbnQtbmciLCJwZXJtaXNzaW9ucyI6WyJBREQiXSwiaXNzIjoic3RvbXAtcmFiYml0LXNwcmluZy1zZXJ2ZXIiLCJleHAiOjE2MjI2OTcyNTgsImlhdCI6MTYyMjE5NzI1OCwianRpIjoiZmMxNDJlNjEtNDc2Yi00ODlkLWE5MjMtMmY0MjdiMjJlYjQwIn0.zuB6mINic-UadpG4p1_DSnEqzFOnn9zdZeYz6nFih62NbdVmKKdCwhCSCazz1aZCbYfsF9y21YUGODn4eOzFCfwFSIWepH13F_Ft8x4XiMfm9-iHDol0BqnS-enQXHZ8jYNWzy4khmM-cQ-2g4_j3RQaQWbn1MLAFW3nPS9Z-bEqIIn-6vROrMlLiK6U4t0wq8i9alWm0lCLiXy2Fq3lhDr2HY0lKEvsmj0VZRUzsL7EcnvaFdIYQzCYgA6qGnnlLuxNnEJpVN7e2cgRCLXjEK9lTyUCNIhH1xAGL5zzwKS5kpMGBd3ZlCwq22y0zlkYTTjus_BCqgNCMZr4jEz_Fg"
+      }
+    },
+    "subscriptions": [
+      "/client/v1/greetings",
+      "/client/v1/error"
+    ],
+    "message": {
+      "name": "stomp-client-ng"
+    },
+    "destination": "/v1/hello",
+    "headers": {
+      "message-key-1": "message-value-1"
+    }
+  }
+}
