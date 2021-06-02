@@ -1,7 +1,13 @@
 spring:
   main:
     banner-mode: off
-
+server:
+  port: 8443
+  ssl:
+    key-alias: spboot-stomp-server-ssl
+    key-store: classpath:ssl/Server/spboot-stomp-http.p12
+    key-store-password: prvt1Key
+    key-store-type: PKCS12
 logging:
   level:
     org.springframework.messaging.simp: DEBUG
