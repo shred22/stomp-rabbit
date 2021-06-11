@@ -12,7 +12,7 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.boot.stomp.rabbit.config.properties.StompProperties;
-import com.boot.stomp.rabbit.service.JwtTokenVerifierService;
+import com.boot.stomp.rabbit.service.JwtTokenService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class StompFramesInterceptor implements ChannelInterceptor {
 
     private final StompProperties stompProperties;
-    private final JwtTokenVerifierService tokenVerifierService;
+    private final JwtTokenService tokenVerifierService;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -33,6 +33,11 @@ public class StompFramesInterceptor implements ChannelInterceptor {
         if (command != null) {
             if(StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
                 authenticateClient(headerAccessor.getNativeHeader("X-authorization"));
+            }
+            if(StompCommand.ACK.equals(headerAccessor.getCommand())) {
+                log.info("\n\n\n\n\n\n");
+                log.info("************ ACK Frame Received ************");
+                log.info("\n\n\n\n\n\n");
             }
             else if (StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())) {
                 log.info("SUBSCRIBE FRAME intercepted");
@@ -44,22 +49,32 @@ public class StompFramesInterceptor implements ChannelInterceptor {
 
                     return MessageBuilder.createMessage(message.getPayload(), headerAccessor.getMessageHeaders());
                 }
-                for (String subscription: destinations) {
+                /*for (String subscription: destinations) {
                     updateStompDestination(subscription, headerAccessor);
-                }
+                }*/
+                headerAccessor.setHeader("x-dead-letter-exchange", "dead-letter-exchange");
+                headerAccessor.setNativeHeader("x-dead-letter-exchange", "dead-letter-exchange");
+                headerAccessor.setNativeHeader("x-dead-letter-routing-key", "greetings");
+                headerAccessor.setHeader("x-dead-letter-routing-key", "greetings");
+                //headerAccessor.setNativeHeader("persistent", "false");
+               // headerAccessor.setHeader("persistent", false);
 
-                headerAccessor.setNativeHeader("persistent", "false");
-                headerAccessor.setHeader("persistent", false);
                 return MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders());
             } else if (StompCommand.MESSAGE.equals(headerAccessor.getCommand())) {
                 log.info("MESSAGE FRAME intercepted");
-                updateStompDestination(headerAccessor.getNativeHeader("destination").get(0), headerAccessor);
+                //updateStompDestination(headerAccessor.getNativeHeader("destination").get(0), headerAccessor);
                 return MessageBuilder.createMessage(message.getPayload(), headerAccessor.getMessageHeaders());
             }
             else if (StompCommand.SEND.equals(headerAccessor.getCommand())) {
                 log.info("SEND FRAME intercepted");
                 /*updateStompDestinationForSendFrames(headerAccessor.getNativeHeader("destination").get(0), headerAccessor);
                 return MessageBuilder.createMessage(message.getPayload(), headerAccessor.getMessageHeaders());*/
+            }
+            else if (StompCommand.CONNECTED.equals(headerAccessor.getCommand())) {
+                log.info("CONNECTED FRAME intercepted");
+                headerAccessor.setHeader("correlationId", headerAccessor.getSessionId());
+                headerAccessor.setNativeHeader("correlationId", headerAccessor.getSessionId());
+                return MessageBuilder.createMessage(message.getPayload(), headerAccessor.getMessageHeaders());
             }
         }
         return message;

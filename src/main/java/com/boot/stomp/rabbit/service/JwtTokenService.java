@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class JwtTokenVerifierService {
+public class JwtTokenService {
 
     private final JwtConfigProperties jwtConfig;
     private final JWTVerifier verifier;
@@ -33,7 +33,7 @@ public class JwtTokenVerifierService {
     private final RSAPublicKey publicKey;
     private final Algorithm algorithm;
 
-    public JwtTokenVerifierService(JwtConfigProperties jwtConfig) throws IOException {
+    public JwtTokenService(JwtConfigProperties jwtConfig) throws IOException {
         this.jwtConfig = jwtConfig;
         this.privateKey = PemUtils.readPrivateKeyFromFile(new File("src/main/resources/jwt/private_key.pem"), "RSA");
         this.publicKey = PemUtils.readPublicKeyFromFile(new File("src/main/resources/jwt/jwt_public.pem"), "RSA");
@@ -56,7 +56,7 @@ public class JwtTokenVerifierService {
         }
     }
 
-    private void createJwt() {
+    public String createJwt() {
         JWTCreator.Builder jwtBuilder = JWT.create()
                 .withIssuer("stomp-rabbit-spring-server")
                 .withSubject("stomp-client-ng")
@@ -66,6 +66,6 @@ public class JwtTokenVerifierService {
                 .withArrayClaim("permissions", new String[]{"ADD"})
                 .withKeyId("12345")
                 .withJWTId(UUID.randomUUID().toString());
-        jwtBuilder.sign(algorithm);
+        return jwtBuilder.sign(algorithm);
     }
 }

@@ -1,9 +1,13 @@
 package com.boot.stomp.rabbit.config;
 
+import java.util.Arrays;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
@@ -22,4 +26,6 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     protected boolean sameOriginDisabled() {
         return true;
     }
+
+
 }

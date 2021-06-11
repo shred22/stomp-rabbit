@@ -1,19 +1,16 @@
 spring:
   main:
     banner-mode: off
-server:
-  port: 8443
-  ssl:
-    key-alias: spboot-stomp-server-ssl
-    key-store: classpath:ssl/Server/spboot-stomp-http.p12
-    key-store-password: prvt1Key
-    key-store-type: PKCS12
-logging:
-  level:
-    org.springframework.messaging.simp: DEBUG
-    org.springframework.security: DEBUG
 
 app:
+  http:
+    server:
+      ssl:
+        port: 8444
+      port: 8444
+  tcp:
+    server:
+      port: 10002
   jwt:
     issuer: stomp-rabbit-spring-server
     secretKey: securesecuresecuresecuresecuresecuresecuresecuresecuresecuresecure
@@ -45,6 +42,22 @@ app:
       port: 61614
       login: shred22
       password: password
-      relay: /queue
+      relay: /exchange
     outbound:
       thread-pool-size: 5
+
+security:
+  require-ssl: true
+server:
+  port: 8444
+  ssl:
+    key-alias: spboot-stomp-server-ssl
+    key-store: classpath:ssl/Server/spboot-stomp-http.p12
+    key-store-password: prvt1Key
+    key-store-type: PKCS12
+logging:
+  level:
+    org.springframework.messaging.simp: INFO
+    org.springframework.security: INFO
+    org.springframework.amqp: INFO
+    org.springframework.boot: INFO

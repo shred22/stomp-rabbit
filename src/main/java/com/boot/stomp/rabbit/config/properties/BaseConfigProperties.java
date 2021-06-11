@@ -35,5 +35,6 @@ public class BaseConfigProperties {
     private String tokenPrefix;
     private Integer tokenExpirationAfterDays;
     private String issuer;
+    private SSL ssl;
 }
 

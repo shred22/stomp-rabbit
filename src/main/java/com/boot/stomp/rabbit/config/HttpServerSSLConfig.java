@@ -9,11 +9,17 @@ import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.boot.stomp.rabbit.config.properties.HttpServerProperties;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Configuration
 @Slf4j
-public class ServerSSLConfig {
+@Configuration
+@AllArgsConstructor
+public class HttpServerSSLConfig {
+
+    private final HttpServerProperties httpServerProperties;
 
     @Bean
     public ServletWebServerFactory servletContainer() {
@@ -35,9 +41,9 @@ public class ServerSSLConfig {
     private Connector redirectConnector() {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         connector.setScheme("http");
-        connector.setPort(8080);
+        connector.setPort(8081);
         connector.setSecure(false);
-        connector.setRedirectPort(8443);
+        connector.setRedirectPort(8444);
         return connector;
     }
 }

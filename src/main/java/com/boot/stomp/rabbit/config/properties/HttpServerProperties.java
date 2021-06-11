@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Configuration
-@ConfigurationProperties("app.stomp.tls.server")
-public class ServerTLSProperties extends BaseConfigProperties {
+@ConfigurationProperties("app.http.server")
+public class HttpServerProperties extends BaseConfigProperties {
 }

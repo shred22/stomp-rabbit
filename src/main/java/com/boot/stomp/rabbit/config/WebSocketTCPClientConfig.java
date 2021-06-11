@@ -21,7 +21,7 @@ import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
 
 import com.boot.stomp.rabbit.config.properties.BrokerProperties;
 import com.boot.stomp.rabbit.config.properties.ClientTLSProperties;
-import com.boot.stomp.rabbit.config.properties.ServerTLSProperties;
+import com.boot.stomp.rabbit.config.properties.StompServerTLSProperties;
 import com.boot.stomp.rabbit.config.properties.TLSProperties;
 
 import io.netty.handler.ssl.SslContext;
@@ -36,7 +36,7 @@ public class WebSocketTCPClientConfig {
 
     private final TLSProperties tlsProperties;
     private final ClientTLSProperties clientTLSProperties;
-    private final ServerTLSProperties serverTLSProperties;
+    private final StompServerTLSProperties stompServerTLSProperties;
     private final BrokerProperties brokerProperties;
 
     @Bean
@@ -64,11 +64,11 @@ public class WebSocketTCPClientConfig {
 
     @Bean
     public TrustManagerFactory trustManagerFactory() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-        char[] trustPassphrase = serverTLSProperties.getTrustPassword().toCharArray();
-        KeyStore tks = KeyStore.getInstance(serverTLSProperties.getTrustStoreType());
-        tks.load(new FileInputStream(serverTLSProperties.getCertFile()), trustPassphrase);
+        char[] trustPassphrase = stompServerTLSProperties.getTrustPassword().toCharArray();
+        KeyStore tks = KeyStore.getInstance(stompServerTLSProperties.getTrustStoreType());
+        tks.load(new FileInputStream(stompServerTLSProperties.getCertFile()), trustPassphrase);
 
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(serverTLSProperties.getTrustManagerType());
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(stompServerTLSProperties.getTrustManagerType());
         tmf.init(tks);
         return tmf;
     }
@@ -79,7 +79,7 @@ public class WebSocketTCPClientConfig {
         KeyStore ks = KeyStore.getInstance(clientTLSProperties.getKeyStoreType());
         ks.load(new FileInputStream(clientTLSProperties.getKeyLocation()), keyPassphrase);
 
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(serverTLSProperties.getTrustManagerType());
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(stompServerTLSProperties.getTrustManagerType());
         kmf.init(ks, keyPassphrase);
         return kmf;
     }

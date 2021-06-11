@@ -13,29 +13,33 @@ import com.boot.stomp.rabbit.config.properties.BrokerProperties;
 import com.boot.stomp.rabbit.config.properties.ClientProperties;
 import com.boot.stomp.rabbit.config.properties.OutboundProperties;
 import com.boot.stomp.rabbit.config.properties.StompProperties;
+import com.boot.stomp.rabbit.interceptor.CustomHandshakeInterceptor;
 import com.boot.stomp.rabbit.interceptor.StompFramesInterceptor;
-import com.boot.stomp.rabbit.service.JwtTokenVerifierService;
+import com.boot.stomp.rabbit.service.JwtTokenService;
+import com.boot.stomp.rabbit.service.PayPointService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@EnableWebSocketMessageBroker
 @Slf4j
 @AllArgsConstructor
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocketMessageBroker
+public class WebStompConfig implements WebSocketMessageBrokerConfigurer {
 
     private final BrokerProperties brokerProperties;
     private final ClientProperties clientProperties;
     private final OutboundProperties outboundProperties;
     private final StompProperties stompProperties;
     private final ReactorNettyTcpClient<byte[]> tcpClient;
-    private final JwtTokenVerifierService tokenVerifierService;
+    private final JwtTokenService tokenVerifierService;
+    private final PayPointService payPointService;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(stompProperties.getEndpoint())
-                .setAllowedOrigins(stompProperties.getAllowedOrigins());
+        registry.addEndpoint("/stomp-ws/{pointId}")
+                .setAllowedOrigins(stompProperties.getAllowedOrigins())
+                .addInterceptors(handshakeInterceptor());
     }
 
     @Override
@@ -55,7 +59,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
          *  External Rabbit MQ Broker Configuration
          **/
         // Messages Going Outbound towards STOMP Client
-         config.setUserDestinationPrefix(stompProperties.getUserDestinationPrefix());
+        config.setUserDestinationPrefix(stompProperties.getUserDestinationPrefix());
         // Messages From STOMP Client which will be Forwarded to Controllers
         config.setApplicationDestinationPrefixes(stompProperties.getAppDestinationPrefix());
         // Destination Prefixes on External Broker
@@ -78,6 +82,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public StompFramesInterceptor filterChannelInterceptor() {
         return new StompFramesInterceptor(stompProperties, tokenVerifierService);
+    }
+
+    @Bean
+    public CustomHandshakeInterceptor handshakeInterceptor() {
+        return new CustomHandshakeInterceptor(payPointService);
     }
 
 

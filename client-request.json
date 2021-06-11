@@ -1,0 +1,66 @@
+{
+  "template": {
+    "connect": {
+      "url": "ws://localhost:8080/stomp",
+      "headers": {
+        "X-authorization": "some-secret"
+      }
+    },
+    "subscriptions": [
+      "/reply/teams",
+      "/reply/score"
+    ],
+    "message": {
+      "body": {
+        "teamName": "INDIA",
+        "playerName": "rishabhhanday"
+      },
+      "destination": "/game/start",
+      "headers": {
+        "message-key-1": "message-value-1"
+      }
+    }
+  },
+  "secures": {
+    "connect": {
+      "url": "wss://localhost:8443/stomp-ws",
+      "headers": {
+        "X-authorization": "eyJraWQiOiIxMjM0NSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJzdG9tcC1jbGllbnQtbmciLCJhdWQiOiJzdG9tcC1jbGllbnQtbmciLCJwZXJtaXNzaW9ucyI6WyJBREQiXSwiaXNzIjoic3RvbXAtcmFiYml0LXNwcmluZy1zZXJ2ZXIiLCJleHAiOjE2MjMzMDU4NjMsImlhdCI6MTYyMjgwNTg2MywianRpIjoiZDVjYmY0NWYtMjNiYi00YWUzLWEwYzYtMGI3YmM4NzEzODI1In0.HHLXzfKnFVZc65X8wqtpfCiB__aS-ZOtjm1Oe8ZehiSZ6NyASmtloD0KE6G-AnAL-X6CqdzHya_Y_LdfsqHhiy7ED5YKXSdhimbu7ABjQITzGd7t6f1VIOiXVDzrzDfIgS043C2q_-xNps_jxood37KR2fIldd2AlaLIEMZsFPZsyixKeHGi66P69C9-tFQCODtY239xYwKjASKh4RvQSlc9BZZYkO_jyXjVffLq3LpZcIi3AUu5n_M3wdO8P5MCHVps_Nej-mYoSBc9hLOskbkLhOXdBY_wsX_T0ows1fp-sMwS7TOjzKYFwcFB037mZwbyt8G6MQ9susR5IOXHaQ"
+      }
+    },
+    "subscriptions": [
+      "/client/v1/greetings",
+      "/client/v1/error"
+    ],
+    "message": {
+      "body": {
+        "name": "Shreyas"
+      },
+      "destination": "/v1/hello",
+      "headers": {
+        "message-key-1": "message-value-1"
+      }
+    }
+  },
+  "exchange": {
+    "connect": {
+      "url": "wss://localhost:8443/stomp-ws",
+      "headers": {
+        "X-authorization": "eyJraWQiOiIxMjM0NSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJzdG9tcC1jbGllbnQtbmciLCJhdWQiOiJzdG9tcC1jbGllbnQtbmciLCJwZXJtaXNzaW9ucyI6WyJBREQiXSwiaXNzIjoic3RvbXAtcmFiYml0LXNwcmluZy1zZXJ2ZXIiLCJleHAiOjE2MjMzMDU4NjMsImlhdCI6MTYyMjgwNTg2MywianRpIjoiZDVjYmY0NWYtMjNiYi00YWUzLWEwYzYtMGI3YmM4NzEzODI1In0.HHLXzfKnFVZc65X8wqtpfCiB__aS-ZOtjm1Oe8ZehiSZ6NyASmtloD0KE6G-AnAL-X6CqdzHya_Y_LdfsqHhiy7ED5YKXSdhimbu7ABjQITzGd7t6f1VIOiXVDzrzDfIgS043C2q_-xNps_jxood37KR2fIldd2AlaLIEMZsFPZsyixKeHGi66P69C9-tFQCODtY239xYwKjASKh4RvQSlc9BZZYkO_jyXjVffLq3LpZcIi3AUu5n_M3wdO8P5MCHVps_Nej-mYoSBc9hLOskbkLhOXdBY_wsX_T0ows1fp-sMwS7TOjzKYFwcFB037mZwbyt8G6MQ9susR5IOXHaQ"
+      }
+    },
+    "subscriptions": [
+      "/client/exchange/stomp-prog-exchange",
+      "/client/v1/error"
+    ],
+    "message": {
+      "body": {
+        "name": "Shreyas"
+      },
+      "destination": "/v1/exchmsg",
+      "headers": {
+        "message-key-1": "message-value-1"
+      }
+    }
+  }
+}
