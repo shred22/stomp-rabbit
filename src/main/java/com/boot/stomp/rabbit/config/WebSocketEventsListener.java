@@ -1,6 +1,5 @@
 package com.boot.stomp.rabbit.config;
 
-import org.javatuples.Triplet;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -11,7 +10,6 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import com.boot.stomp.rabbit.service.RabbitAdminService;
 
-import static com.boot.Constants.POS_ID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class WebSocketEventsListener {
 
-    private final RabbitAdminService rabbitAdminService;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -38,10 +35,10 @@ public class WebSocketEventsListener {
     public void handleSessionSubscribeEvent(SessionSubscribeEvent sessionSubscribeEvent) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(sessionSubscribeEvent.getMessage());
         String sessionId = headerAccessor.getSessionId();
-        Triplet<String, String, String> posIdSessionIdQueueTriplet = rabbitAdminService.
+        /*Triplet<String, String, String> posIdSessionIdQueueTriplet = rabbitAdminService.
                 handleAmqpInfraCreationForRoutingToExchange(sessionId,
                 (String) headerAccessor.getSessionAttributes().get(POS_ID));
-        headerAccessor.getSessionAttributes().put("queue-"+sessionId+"-"+headerAccessor.getSessionAttributes().get(POS_ID), posIdSessionIdQueueTriplet);
+        headerAccessor.getSessionAttributes().put("queue-"+sessionId+"-"+headerAccessor.getSessionAttributes().get(POS_ID), posIdSessionIdQueueTriplet);*/
     }
     private StompHeaderAccessor getStompHeaderAccessor(Message<byte[]> message) {
         return StompHeaderAccessor.wrap(message);

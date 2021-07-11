@@ -13,11 +13,11 @@ app:
   http:
     server:
       ssl:
-        port: 8444
-      port: 8080
+        port: 8443
+      port: 8081
   tcp:
     server:
-      port: 10004
+      port: 10003
   jwt:
     issuer: stomp-rabbit-spring-server
     secretKey: securesecuresecuresecuresecuresecuresecuresecuresecuresecuresecure
@@ -56,7 +56,7 @@ app:
 security:
   require-ssl: true
 server:
-  port: 8444
+  port: 8443
   ssl:
     key-alias: spboot-stomp-server-ssl
     key-store: classpath:ssl/Server/spboot-stomp-http.p12

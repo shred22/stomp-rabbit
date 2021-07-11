@@ -1,5 +1,8 @@
 package com.boot.stomp.rabbit.config;
 
+import java.util.Map;
+
+import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -13,10 +16,13 @@ import com.boot.stomp.rabbit.config.properties.BrokerProperties;
 import com.boot.stomp.rabbit.config.properties.ClientProperties;
 import com.boot.stomp.rabbit.config.properties.OutboundProperties;
 import com.boot.stomp.rabbit.config.properties.StompProperties;
-import com.boot.stomp.rabbit.interceptor.CustomHandshakeInterceptor;
+import com.boot.stomp.rabbit.interceptor.WebSocketHandshakeInterceptor;
 import com.boot.stomp.rabbit.interceptor.StompFramesInterceptor;
+import com.boot.stomp.rabbit.repository.DevicePayPointPairRepository;
 import com.boot.stomp.rabbit.service.JwtTokenService;
 import com.boot.stomp.rabbit.service.PayPointService;
+import com.boot.stomp.rabbit.model.StompConnectionDetails;
+import com.boot.stomp.tcp.model.DeviceConnectionDetails;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +40,8 @@ public class WebStompConfig implements WebSocketMessageBrokerConfigurer {
     private final ReactorNettyTcpClient<byte[]> tcpClient;
     private final JwtTokenService tokenVerifierService;
     private final PayPointService payPointService;
+    private final DevicePayPointPairRepository repository;
+    private final Map<String, Pair<Map<String, DeviceConnectionDetails>, Map<String, StompConnectionDetails>>> devicePayPointConnectionStatus;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -85,8 +93,8 @@ public class WebStompConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Bean
-    public CustomHandshakeInterceptor handshakeInterceptor() {
-        return new CustomHandshakeInterceptor(payPointService);
+    public WebSocketHandshakeInterceptor handshakeInterceptor() {
+        return new WebSocketHandshakeInterceptor(payPointService, devicePayPointConnectionStatus, repository);
     }
 
 

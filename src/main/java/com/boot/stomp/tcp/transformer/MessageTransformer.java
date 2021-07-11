@@ -1,4 +1,4 @@
-package com.boot.tcp.transformer;
+package com.boot.stomp.tcp.transformer;
 
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.stereotype.Component;

@@ -1,107 +1,97 @@
 package com.boot.stomp.rabbit.service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.javatuples.Triplet;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 
+import static java.util.Map.of;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import static org.springframework.amqp.core.BindingBuilder.bind;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class RabbitAdminService {
 
-    private final AmqpAdmin rabbitAdmin;
     private final Channel rabbitChannel;
+    private final AmqpAdmin rabbitAdmin;
+    private final RabbitTemplate rabbitTemplate;
 
-    public void handleInfraCreationForRoutingToExchange(String sessionId) {
-        Queue queue = createQueue(sessionId);
-        rabbitAdmin.declareQueue(queue);
-        DirectExchange exchange = new DirectExchange("stomp-prog-exchange");
-        rabbitAdmin.declareExchange(exchange);
-        Binding binding = BindingBuilder.bind(queue).to(exchange).with(sessionId);
-        rabbitAdmin.declareBinding(binding);
+
+    public RabbitAdminService(Channel rabbitChannel, AmqpAdmin rabbitAdmin, RabbitTemplate rabbitTemplate) {
+        this.rabbitChannel = rabbitChannel;
+        this.rabbitAdmin = rabbitAdmin;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
-    public Triplet<String, String, String> handleAmqpInfraCreationForRoutingToExchangeAndTopic(String sessionId, String posId) {
-        String queue = createRabbitResource("QUEUE", sessionId, posId);
-        String exchange = createRabbitResource("EXCHANGE", sessionId, posId);
+    public Boolean handleAmqpInfraCreationForRoutingToExchange(String exchangeName, String exchangeType, String queueName,
+                                                               String deviceId, MessageListener messageListener) {
+        addExchange(exchangeName, exchangeType);
+        addQueue(queueName, deviceId, messageListener);
+        ///addBinding(new DirectExchange(exchangeName), queue, deviceId);
+        //rabbitChannel.queueBind(queue, exchange, deviceId);
+        return true;
+    }
+
+    private void addBinding(Exchange exchange, Queue queue, String routingKey) {
+        rabbitAdmin.declareBinding(bind(queue).to(exchange).with(routingKey).noargs());
+    }
+
+    private void addExchange(String exchangeName, String exchangeType) {
         try {
-            AMQP.Queue.BindOk queueBind = rabbitChannel.queueBind(queue, exchange, posId+"-"+sessionId);
+            rabbitChannel.exchangeDeclarePassive(exchangeName);
         } catch (IOException e) {
-            log.error("Can't Bind Queue. Error Occurred.");
-            throw new RuntimeException(e.getMessage());
+            try {
+                log.error("Rabbit Exchange doesn't exist. Creating new Exchange ...");
+                rabbitChannel.exchangeDeclare(exchangeName, exchangeType);
+            } catch (IOException ioException) {
+                log.error("Can't Create Exchange. Error Occurred.");
+                throw new RuntimeException(e.getMessage());
+            }
         }
-        Triplet<String, String, String> posIdSessionIdQueueTriplet = Triplet.with(posId, sessionId, queue);
-        return posIdSessionIdQueueTriplet;
-
     }
 
-    public Triplet<String, String, String> handleAmqpInfraCreationForRoutingToExchange(String sessionId, String posId) {
-        String queue = createRabbitResource("QUEUE", sessionId, posId);
-        String exchange = createRabbitResource("EXCHANGE", sessionId, posId);
+    private Queue addQueue(String queueName, String deviceId, MessageListener messageListener) {
+
+
         try {
-            AMQP.Queue.BindOk queueBind = rabbitChannel.queueBind(queue, exchange, posId+"-"+sessionId);
+            rabbitChannel.queueDeclare(queueName, true, false,false, of("x-queue-type", "quorum"));
+            rabbitChannel.queueBind(queueName, "stomp-exchange", deviceId);
+            addQueueToListener(queueName, deviceId, messageListener);
         } catch (IOException e) {
-            log.error("Can't Bind Queue. Error Occurred.");
-            throw new RuntimeException(e.getMessage());
+            log.error("Error while Creating Queue .. .. .. .......:"+e.getMessage());
+
         }
-        Triplet<String, String, String> posIdSessionIdQueueTriplet = Triplet.with(posId, sessionId, queue);
-        return posIdSessionIdQueueTriplet;
+
+
+        return null;
 
     }
 
-    private String createRabbitResource(String rabbitResource, String sessionId, String posId) {
-        switch (rabbitResource) {
 
-            case "QUEUE":
-                AMQP.Queue.DeclareOk declareOk = null;
-                try {
-                    declareOk = rabbitChannel.queueDeclarePassive(posId + "-" + sessionId);
-                } catch (IOException e) {
-                    try {
-                        declareOk = rabbitChannel.queueDeclare("amqp-stomp-"+posId+"-"+sessionId, false, false, true, null);
-                    } catch (IOException ioException) {
-                        log.error("Can't Create Queue. Error Occured.");
-                        throw new RuntimeException(e.getMessage());
-                    }
-                }
-                return declareOk.getQueue();
-            case "EXCHANGE":
-                AMQP.Exchange.DeclareOk exchangeDeclareOk = null;
-                try {
-                    exchangeDeclareOk = rabbitChannel.exchangeDeclarePassive("stomp-exchange");
-                } catch (IOException e) {
-                    try {
-                        exchangeDeclareOk = rabbitChannel.exchangeDeclare("stomp-exchange", "stomp-exchange");
-                    } catch (IOException ioException) {
-                        log.error("Can't Create Queue. Error Occured.");
-                        throw new RuntimeException(e.getMessage());
-                    }
-                }
-                return "stomp-exchange";
-
-            default:
-                return null;
-        }
+    public void addQueueToListener(String queue, String deviceId, MessageListener messageListener) {
+        AbstractMessageListenerContainer listener = startListening(queue, messageListener);
     }
 
-
-    private Queue createQueue(String sessionId) {
-        //Map.of("x-dead-letter-exchange", "dead-letter-exchange")
-        return new Queue("stomp-user-" + sessionId, false, false, true, new HashMap<>());
+    public AbstractMessageListenerContainer startListening(String queue, MessageListener messageListener) {
+        log.info("Adding Rabbit Queue  Listener for Queue. . .  . . . : "+queue);
+        SimpleMessageListenerContainer  listener = new SimpleMessageListenerContainer(rabbitTemplate.getConnectionFactory());
+        /*rabbitAdmin.declareBinding(bind(queue).to(exchange).with(key).noargs());
+        listener.addQueues(queue);*/
+        listener.addQueueNames(queue);
+        listener.setMessageListener(messageListener);
+        listener.start();
+        return listener;
     }
-
 }

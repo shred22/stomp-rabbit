@@ -1,4 +1,4 @@
-package com.boot.tcp.config;
+package com.boot.stomp.tcp.config;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -8,9 +8,10 @@ import org.javatuples.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.boot.tcp.converter.DateDeserializer;
-import com.boot.tcp.converter.DateSerializer;
-import com.boot.tcp.model.DeviceConnectionDetails;
+import com.boot.stomp.rabbit.model.StompConnectionDetails;
+import com.boot.stomp.tcp.converter.DateDeserializer;
+import com.boot.stomp.tcp.converter.DateSerializer;
+import com.boot.stomp.tcp.model.DeviceConnectionDetails;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,11 +32,6 @@ public class BeanConfiguration {
                         .addSerializer(Date.class, new DateSerializer())
         );
         return mapper;
-    }
-
-    @Bean
-    public Map<String, String> devicePayPointPair() {
-        return new HashMap<>();
     }
 
     @Bean

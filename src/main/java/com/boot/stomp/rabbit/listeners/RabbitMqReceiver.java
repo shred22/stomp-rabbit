@@ -15,8 +15,8 @@ public class RabbitMqReceiver implements RabbitListenerConfigurer {
     public void configureRabbitListeners(RabbitListenerEndpointRegistrar rabbitListenerEndpointRegistrar) {
         log.info("RabbitListenerEndpointRegistrar " );
     }
-    @RabbitListener(queues = {"amqp-shared-queue", "amqp-common-topic"})
+    /*@RabbitListener(queues = {"amqp-shared-queue", "amqp-common-topic"})
     public void receivedMessage(String message) {
         log.info("User Details Received is.. " + message);
-    }
+    }*/
 }

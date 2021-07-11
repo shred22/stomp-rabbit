@@ -1,6 +1,9 @@
 package com.boot.stomp.rabbit.controller.stomp;
 
+import java.io.IOException;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -8,9 +11,12 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import com.boot.Constants;
 import com.boot.stomp.rabbit.config.properties.BrokerProperties;
+import com.boot.stomp.rabbit.model.DevicePayPointPair;
 import com.boot.stomp.rabbit.model.GreetingResponse;
-import com.boot.stomp.rabbit.service.RabbitAdminService;
+import com.boot.stomp.rabbit.repository.DevicePayPointPairRepository;
+import com.boot.stomp.tcp.server.TraditionalTcpServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,12 +28,13 @@ import static org.apache.commons.collections4.MapUtils.isEmpty;
 @Slf4j
 @Controller
 @AllArgsConstructor
-public class StompController {
+public class StompController  {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final BrokerProperties brokerProperties;
-    private final RabbitAdminService rabbitAdminService;
     private final RabbitTemplate rabbitTemplate;
+    private final DevicePayPointPairRepository repository;
+    private ApplicationContext applicationContext;
 
     @MessageMapping("/hello")
     // @SendToUser("/queue/v1-greetings")
@@ -50,15 +57,19 @@ public class StompController {
     }
 
     @MessageMapping("/exchmsg")
-    public void routeToExchange(String greeting, SimpMessageHeaderAccessor accessor) throws JsonProcessingException {
+    public void routeToExchange(String greeting, SimpMessageHeaderAccessor accessor) throws IOException {
         log.info("Stomp exchange controller processing frames");
         ObjectMapper jsonMapper = new ObjectMapper();
         String client = jsonMapper.readTree(greeting).get("name").asText();
+        DevicePayPointPair devicePayPointPair = repository.findByPayPointId((String) accessor.getSessionAttributes().get(Constants.PAY_POINT_ID));
         if (!isEmpty(accessor.getSessionAttributes())) {
-            rabbitTemplate.convertAndSend("amq.topic", "stomp." + accessor.getSessionId(), greeting);
+            rabbitTemplate.convertAndSend("stomp-exchange",  devicePayPointPair.getDeviceId(), greeting+ " TCP Message .. . . . . .. . . .");
         }
         messagingTemplate.convertAndSendToUser(requireNonNull(accessor.getSessionId()), "/exchange/stomp-exchange/tQueue",
                 GreetingResponse.builder().message("Sent with template " + client + " ...!!").build(), createMessageHeader(accessor.getSessionId()));
+        TraditionalTcpServer tcpServer = applicationContext.getBean(TraditionalTcpServer.class);
+        log.info("Sending TCP Response from Stomp Layer . . . ");
+        tcpServer.sendTCPResponse(devicePayPointPair.getDeviceId());
     }
 
     private MessageHeaders createMessageHeader(String sessionId) {
@@ -68,4 +79,5 @@ public class StompController {
         headerAccessor.setLeaveMutable(true);
         return headerAccessor.getMessageHeaders();
     }
+
 }

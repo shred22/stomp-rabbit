@@ -1,4 +1,4 @@
-package com.boot.tcp.config.properties;
+package com.boot.stomp.tcp.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
